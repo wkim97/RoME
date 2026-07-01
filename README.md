@@ -42,7 +42,7 @@ See the paper for full tables and analysis.
 
 ## Code
 
-🚧 Code will be released upon publication. Stay tuned.
+🚧 Code will be released upon publication!
 
 ## Citation
 
