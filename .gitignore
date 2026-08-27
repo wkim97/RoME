@@ -1,2 +1,16 @@
 # Paper source and PDFs
 paper/
+
+# Model weights (see README for download links)
+checkpoints/
+*.pth
+*.pt
+
+# Datasets, runs and logs
+datasets/
+runs/
+logs/
+
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/

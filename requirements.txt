@@ -1,0 +1,5 @@
+torch>=2.0
+torchvision>=0.15
+timm>=1.0
+tqdm
+autoattack @ git+https://github.com/fra31/auto-attack

@@ -15,34 +15,90 @@ Official implementation of our **ECCV 2026** paper:
 
 ---
 
-## Overview
+## Setup
 
-Multi-perturbation adversarial training (MAT) seeks robustness against multiple adversarial threats
-at once, but suffers from **robustness trade-offs** across threats. RoME routes each threat
-through a distinct model pathway via a **Mixture of Experts**, using three components:
+```bash
+conda create -n rome python=3.11 -y
+conda activate rome
+pip install -r requirements.txt
+```
 
-- **Robust low-rank experts** — experts are low-rank additive updates over a shared backbone, so
-  the backbone captures threat-common features while experts learn threat-specific ones.
-- **Threat-distinguishing dual-scale gating** — gating fuses local patch-level and global
-  image-level features to better tell threats apart.
-- **Threat-guided gating diversification** — a regularizer that pushes different threats to
-  distinct expert combinations, avoiding threat-agnostic routing.
+## Data
 
-RoME is modular (plugs into MAT recipes such as MAX and RANDOM), and because threat labels are
-used only at training time, it also generalizes to **unseen** threats at inference.
+```
+datasets/
+├── cifar-10-batches-py/          # auto-downloaded
+├── imagenet_100/{train,val}/     # one folder per class
+└── imagenet/{train,val}/         # one folder per class
+```
 
-## Key results
+Override the root with `DATA_DIR=/path/to/datasets` or `--data-dir`.
 
-- **Union robustness + natural accuracy.** RoME+MAX improves union robustness and natural accuracy over baselines across CIFAR-10, ImageNet-100, and ImageNet-1K datasets.
-- **Unseen threats.** Outperforms prior MAT on common corruptions, $\ell_0$, perceptual, patch,
-  spatial, and semantic attacks, as well as an adaptive gating-misrouting attack.
-- **Architecture-agnostic.** Consistent gains on both Transformer and CNN-based models.
+## Checkpoints
 
-See the paper for full tables and analysis.
+Download into `checkpoints/`:
 
-## Code
+```
+checkpoints/
+├── ViT_CIFAR10/{MAX,RANDOM}_apgd_cifar10.pth
+├── ViT_ImageNet100/{MAX,RANDOM}_apgd_imagenet100.pth
+└── ViT_ImageNet1K/{MAX,RANDOM}_apgd_imagenet1k.pth
+```
 
-🚧 Code and checkpoints will be released upon publication!
+## Training
+
+```bash
+./scripts/train_cifar10.sh     max        # or: random
+./scripts/train_imagenet100.sh max
+./scripts/train_imagenet1k.sh  max
+```
+
+Second argument is the GPU index. Each script holds the hyper-parameters for its dataset;
+per-threat budgets live in `utils/config.py`. Checkpoints and `log_train.txt` go to
+`runs/<strategy>_<dataset>/`, and an interrupted run resumes from the latest epoch.
+
+To override anything, call `train.py` directly:
+
+```bash
+python train.py --dataset cifar10 --strategy max --data-dir ./datasets
+python train.py --help
+```
+
+## Evaluation
+
+AutoAttack (standard) under ℓ∞, ℓ2 and ℓ1; reports clean, per-threat, average and union accuracy.
+
+```bash
+./scripts/eval_final.sh cifar10_max
+./scripts/eval_final.sh imagenet100_random
+./scripts/eval_final.sh imagenet1k_max 1        # second argument = GPU index
+```
+
+Results are written to `logs/<mode>.txt`.
+
+```bash
+python evaluate.py --dataset cifar10 \
+    --ckpt checkpoints/ViT_CIFAR10/MAX_apgd_cifar10.pth --data-dir ./datasets
+python evaluate.py --help
+```
+
+Expert count, LoRA rank and gate type are read from the checkpoint. `--s` / `--b` set
+β(l) = σ(s(1 − l/L) − b) and must match the values used for training.
+
+## Layout
+
+```
+train.py                     adversarial training
+evaluate.py                  AutoAttack evaluation
+attacks/apgd.py              APGD
+models/vit.py                ViT-B/16 backbone
+models/lora_moe_mlp.py       LoRA-MoE adapter, MLP gates
+models/lora_moe_linear.py    LoRA-MoE adapter, linear gates
+loss/gate_diversity.py       gating diversification loss
+data/loaders.py              dataset loaders
+utils/config.py              per-dataset geometry and ε
+scripts/                     entry points
+```
 
 ## Citation
 
@@ -57,5 +113,5 @@ See the paper for full tables and analysis.
 
 ## Acknowledgements
 
-Low-rank experts build on [LoRA](https://github.com/microsoft/LoRA). We thank the authors of the
-MAT baselines and evaluation suites whose code and protocols we build upon.
+Built on [LoRA](https://github.com/microsoft/LoRA), [timm](https://github.com/huggingface/pytorch-image-models)
+and [AutoAttack](https://github.com/fra31/auto-attack).
