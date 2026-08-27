@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="RoME: Robust Mixture of Low-Rank Experts against Multiple Adversarial Perturbations (ECCV 2026)">
+  <meta name="keywords" content="RoME, adversarial robustness, multi-perturbation adversarial training, mixture of experts, LoRA, ECCV 2026">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>RoME: Robust Mixture of Low-Rank Experts against Multiple Adversarial Perturbations</title>
+
+  <meta property="og:title" content="RoME: Robust Mixture of Low-Rank Experts against Multiple Adversarial Perturbations">
+  <meta property="og:description" content="ECCV 2026. Threat-aware routing over low-rank experts for robustness against multiple adversarial perturbations.">
+  <meta property="og:image" content="https://wkim97.github.io/RoME/static/images/teaser.png">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+
+  <style>
+    body {
+      font-family: 'Noto Sans', Arial, sans-serif;
+      color: #222;
+      font-size: 14px;
+      line-height: 1.58;
+      background: #fff;
+    }
+
+    .page-container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+    }
+
+    .publication-title,
+    .publication-venue,
+    .section-title,
+    .result-category-title {
+      font-family: 'Google Sans', 'Noto Sans', sans-serif;
+    }
+
+    .publication-title {
+      font-size: 1.82rem;
+      line-height: 1.14;
+      letter-spacing: -0.018em;
+      margin-bottom: 0.35rem;
+      text-align: center;
+    }
+
+    .publication-venue {
+      display: block;
+      width: 100%;
+      text-align: center;
+      font-size: 1.02rem;
+      font-weight: 600;
+      color: #333;
+      margin-top: 0.25rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .publication-authors {
+      font-family: 'Google Sans', 'Noto Sans', sans-serif;
+      font-size: 0.96rem;
+      line-height: 1.38;
+      margin-top: 0.35rem;
+      margin-bottom: 0.45rem;
+      text-align: center;
+    }
+
+    .author-block {
+      display: inline-block;
+      margin: 0 0.18rem;
+    }
+
+    .publication-links {
+      margin-top: 0.9rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+    }
+
+    .publication-links .link-block {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .publication-links .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 2.25rem;
+      line-height: 1;
+      font-size: 0.82rem;
+    }
+
+    .publication-links .icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero-body {
+      padding-top: 2.4rem;
+      padding-bottom: 2.1rem;
+    }
+
+    .teaser {
+      margin-top: 1.2rem;
+    }
+
+    .teaser img,
+    .teaser video {
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 7px 18px rgba(15, 23, 42, 0.075);
+      cursor: zoom-in;
+    }
+
+    .teaser-caption {
+      color: #666;
+      font-size: 0.84rem;
+      line-height: 1.48;
+      margin-top: 0.6rem;
+    }
+
+    .section {
+      padding-top: 2.15rem;
+      padding-bottom: 2.15rem;
+    }
+
+    .section-title {
+      font-size: 1.38rem;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.8rem;
+    }
+
+    .content p {
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .highlights-row {
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      gap: 0.7rem;
+      flex-wrap: wrap;
+      margin: 1.1rem auto 0.4rem;
+      max-width: 760px;
+    }
+
+    .highlight-chip {
+      flex: 1 1 200px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 0.65rem 0.8rem;
+      text-align: center;
+    }
+
+    .highlight-chip strong {
+      display: block;
+      font-family: 'Google Sans', 'Noto Sans', sans-serif;
+      font-size: 0.86rem;
+      color: #111827;
+      margin-bottom: 0.15rem;
+    }
+
+    .highlight-chip span {
+      font-size: 0.78rem;
+      color: #6b7280;
+      line-height: 1.4;
+    }
+
+    .pipeline-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 0.85rem;
+      box-shadow: 0 7px 20px rgba(15, 23, 42, 0.07);
+      margin-top: 0.8rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .pipeline-card img {
+      width: 100%;
+      display: block;
+      border-radius: 8px;
+      cursor: zoom-in;
+    }
+
+    .figure-caption {
+      color: #666;
+      font-size: 0.8rem;
+      line-height: 1.45;
+      text-align: center;
+      margin-top: 0.55rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .figure-caption strong {
+      color: #374151;
+    }
+
+    .results-intro {
+      max-width: 760px;
+      margin: 0 auto 1.6rem;
+      text-align: center;
+      color: #444;
+    }
+
+    .result-category {
+      margin-top: 2.2rem;
+      margin-bottom: 2.2rem;
+    }
+
+    .result-category-title {
+      font-size: 1.13rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 0.3rem;
+    }
+
+    .result-category-desc {
+      text-align: center;
+      color: #666;
+      font-size: 0.84rem;
+      margin-bottom: 0.9rem;
+      line-height: 1.45;
+    }
+
+    /* --- figure grids --- */
+    .fig-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      justify-content: center;
+      align-items: flex-end;
+      margin-top: 0.6rem;
+    }
+
+    .fig-item {
+      flex: 1 1 220px;
+      max-width: 100%;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 0.6rem;
+      box-shadow: 0 5px 14px rgba(15, 23, 42, 0.05);
+    }
+
+    .fig-item img {
+      width: 100%;
+      display: block;
+      border-radius: 6px;
+      cursor: zoom-in;
+    }
+
+    .fig-item .sub-caption {
+      text-align: center;
+      font-family: 'Google Sans', 'Noto Sans', sans-serif;
+      font-size: 0.78rem;
+      color: #4b5563;
+      margin-top: 0.45rem;
+    }
+
+    .fig-legend {
+      max-width: 460px;
+      margin: 0 auto 0.2rem;
+      display: block;
+    }
+
+    /* --- tables --- */
+    .table-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      box-shadow: 0 5px 14px rgba(15, 23, 42, 0.05);
+      background: #fff;
+    }
+
+    table.data-table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 640px;
+      font-size: 0.78rem;
+      font-variant-numeric: tabular-nums;
+      background: #fff;
+    }
+
+    table.data-table th,
+    table.data-table td {
+      padding: 0.32rem 0.5rem;
+      text-align: center;
+      white-space: nowrap;
+      border: none;
+    }
+
+    table.data-table thead th {
+      font-family: 'Google Sans', 'Noto Sans', sans-serif;
+      font-weight: 600;
+      color: #111827;
+      background: #f8fafc;
+    }
+
+    table.data-table thead tr:last-child th {
+      border-bottom: 1px solid #cbd5e1;
+    }
+
+    table.data-table tbody td {
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    table.data-table tbody tr.ours {
+      background: #eaf2ff;
+    }
+
+    table.data-table tbody tr.group-start td {
+      border-top: 1px solid #cbd5e1;
+    }
+
+    table.data-table td.name,
+    table.data-table th.name {
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    table.data-table td.group {
+      font-family: 'Google Sans', 'Noto Sans', sans-serif;
+      font-weight: 600;
+      color: #475569;
+      border-right: 1px solid #e2e8f0;
+      background: #fff;
+    }
+
+    table.data-table .best {
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .table-caption {
+      color: #666;
+      font-size: 0.8rem;
+      line-height: 1.45;
+      margin-top: 0.55rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .table-caption strong {
+      color: #374151;
+    }
+
+    /* --- method component list --- */
+    .component-list {
+      list-style: none;
+      margin: 0.6rem 0 0.2rem;
+      padding: 0;
+    }
+
+    .component-list li {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-left: 3px solid #2563eb;
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      margin-bottom: 0.55rem;
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+
+    .component-list li strong {
+      font-family: 'Google Sans', 'Noto Sans', sans-serif;
+      color: #111827;
+    }
+
+    /* --- poster / slides cards --- */
+    .doc-cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 0.9rem;
+    }
+
+    .doc-card {
+      flex: 1 1 320px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 7px 20px rgba(15, 23, 42, 0.065);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .doc-card-media {
+      background: #f8fafc;
+      border-bottom: 1px solid #edf0f3;
+      padding: 0.6rem;
+    }
+
+    .doc-card-media img {
+      width: 100%;
+      display: block;
+      border-radius: 6px;
+      cursor: zoom-in;
+    }
+
+    .doc-card-body {
+      padding: 0.8rem 0.9rem 0.95rem;
+      text-align: center;
+    }
+
+    .doc-card-body h3 {
+      font-family: 'Google Sans', 'Noto Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 0.2rem;
+    }
+
+    .doc-card-body p {
+      font-size: 0.8rem;
+      color: #6b7280;
+      line-height: 1.45;
+      margin-bottom: 0.65rem;
+    }
+
+    .bibtex-box {
+      font-family: 'Menlo', 'Consolas', monospace;
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 1rem;
+      overflow-x: auto;
+      font-size: 0.74rem;
+      line-height: 1.38;
+    }
+
+    footer {
+      padding: 1.6rem 1rem;
+      color: #6b7280;
+      font-size: 0.78rem;
+    }
+
+    .acknowledgement {
+      max-width: 760px;
+      margin: 0 auto;
+      color: #6b7280;
+      font-size: 0.78rem;
+      line-height: 1.55;
+      text-align: justify;
+    }
+
+    /* --- image lightbox --- */
+    .image-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.82);
+      padding: 2rem;
+    }
+
+    .image-modal.active {
+      display: flex;
+    }
+
+    .image-modal-content {
+      position: relative;
+      width: min(94vw, 1400px);
+      max-height: 90vh;
+    }
+
+    .image-modal-content img {
+      width: 100%;
+      max-height: 90vh;
+      display: block;
+      object-fit: contain;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+    }
+
+    .image-modal-close {
+      position: absolute;
+      top: -2.6rem;
+      right: 0;
+      border: none;
+      background: transparent;
+      color: #fff;
+      font-size: 1.8rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    @media screen and (max-width: 768px) {
+      body {
+        font-size: 13.5px;
+      }
+
+      .page-container {
+        max-width: 100%;
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+
+      .publication-title {
+        font-size: 1.45rem;
+      }
+
+      .publication-venue {
+        font-size: 0.92rem;
+      }
+
+      .publication-authors {
+        font-size: 0.9rem;
+      }
+
+      .section-title {
+        font-size: 1.25rem;
+      }
+
+      .content p {
+        font-size: 0.86rem;
+      }
+
+      .image-modal {
+        padding: 1rem;
+      }
+
+      .image-modal-close {
+        top: -2.2rem;
+        font-size: 1.5rem;
+      }
+    }
+
+  .site-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .site-navbar-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0.55rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .site-navbar-title {
+    font-family: 'Google Sans', 'Noto Sans', sans-serif;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: #111827;
+    white-space: nowrap;
+  }
+
+  .site-navbar-links {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
+  .site-navbar-links a {
+    font-family: 'Google Sans', 'Noto Sans', sans-serif;
+    font-size: 0.82rem;
+    color: #4b5563;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .site-navbar-links a:hover {
+    color: #111827;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  section {
+    scroll-margin-top: 3.5rem;
+  }
+
+  @media screen and (max-width: 768px) {
+    .site-navbar-inner {
+      padding: 0.5rem 1rem;
+    }
+
+    .site-navbar-title {
+      display: none;
+    }
+
+    .site-navbar-links {
+      width: 100%;
+      justify-content: center;
+      gap: 0.8rem;
+    }
+
+    .site-navbar-links a {
+      font-size: 0.78rem;
+    }
+  }
+  </style>
+</head>
+
+<body>
+
+<nav class="site-navbar">
+  <div class="site-navbar-inner">
+    <div class="site-navbar-title">RoME</div>
+    <div class="site-navbar-links">
+      <a href="#abstract">Abstract</a>
+      <a href="#motivation">Motivation</a>
+      <a href="#method">Method</a>
+      <a href="#results">Results</a>
+      <a href="#poster">Poster</a>
+      <a href="#bibtex">BibTeX</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="page-container">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+
+          <h1 class="title publication-title">
+            RoME: Robust Mixture of Low-Rank Experts against<br>Multiple Adversarial Perturbations
+          </h1>
+
+          <div class="publication-venue">
+            ECCV 2026
+          </div>
+
+          <div class="publication-authors">
+            <span class="author-block">Woo Jae Kim<sup>1</sup>,</span>
+            <span class="author-block">Kyle Min<sup>2</sup>,</span>
+            <span class="author-block">Suhyeon Ha<sup>1</sup>,</span>
+            <span class="author-block">Joonsung Jeon<sup>1</sup>,</span>
+            <span class="author-block">and Sung-Eui Yoon<sup>1,&dagger;</sup></span>
+          </div>
+
+          <div class="publication-authors">
+            <span class="author-block"><sup>1</sup>KAIST</span>&nbsp;&nbsp;
+            <span class="author-block"><sup>2</sup>Oracle</span>
+          </div>
+
+          <div class="is-size-7 has-text-centered" style="margin-top: 0.35rem;">
+            <sup>&dagger;</sup>Corresponding author.
+          </div>
+
+          <div class="publication-links">
+            <span class="link-block">
+              <a href="./static/pdfs/RoME_paper.pdf" class="external-link button is-normal is-rounded is-dark">
+                <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                <span>Paper</span>
+              </a>
+            </span>
+            <span class="link-block">
+              <a href="https://arxiv.org/abs/2607.06109" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                <span class="icon"><i class="ai ai-arxiv"></i></span>
+                <span>arXiv</span>
+              </a>
+            </span>
+            <span class="link-block">
+              <a href="https://github.com/wkim97/RoME" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                <span class="icon"><i class="fab fa-github"></i></span>
+                <span>Code</span>
+              </a>
+            </span>
+            <span class="link-block">
+              <a href="./static/pdfs/RoME_poster.pdf" class="external-link button is-normal is-rounded is-dark">
+                <span class="icon"><i class="fas fa-image"></i></span>
+                <span>Poster</span>
+              </a>
+            </span>
+            <span class="link-block">
+              <a href="./static/pdfs/RoME_slides.pdf" class="external-link button is-normal is-rounded is-dark">
+                <span class="icon"><i class="fas fa-desktop"></i></span>
+                <span>Slides</span>
+              </a>
+            </span>
+          </div>
+
+          <div class="teaser">
+            <img src="./static/images/teaser.png" alt="RoME teaser: conventional threat-agnostic routing vs. our threat-aware routing">
+            <p class="teaser-caption">
+              Conventional mixture of experts (left) suffers from <strong>threat-agnostic routing</strong>: different
+              &#8467;<sub>p</sub> threats are routed through nearly identical expert combinations, collapsing into a
+              single shared model pathway. <strong>RoME</strong> (right) routes each threat through a distinct
+              combination of low-rank experts, constructing multiple threat-specific pathways that mitigate the
+              cross-threat robustness trade-off.
+            </p>
+          </div>
+
+          <div class="highlights-row">
+            <div class="highlight-chip">
+              <strong>Threat-specific pathways</strong>
+              <span>Low-rank experts over a shared backbone separate threat-common from threat-specific features</span>
+            </div>
+            <div class="highlight-chip">
+              <strong>Threat-aware routing</strong>
+              <span>Dual-scale gating + gating diversification fix threat-agnostic routing</span>
+            </div>
+            <div class="highlight-chip">
+              <strong>Nearly free</strong>
+              <span>SoTA union robustness at only 1.04&times; parameters and 1.04&times; FLOPs</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="abstract">
+  <div class="page-container content">
+    <h2 class="title section-title has-text-centered">Abstract</h2>
+    <div class="content has-text-justified">
+      <p>
+        Multi-perturbation adversarial training (MAT) aims to achieve robustness against multiple
+        &#8467;<sub>p</sub> perturbations but suffers from <strong>robustness trade-offs between different
+        threats</strong>. To address this, we employ a mixture of experts (MoE) to route different threats
+        through distinct model pathways. However, naïve application of MoE encounters two critical challenges:
+        experts tend to overlook threat-specific features and redundantly capture features shared across threats,
+        and gating networks suffer from <strong><em>threat-agnostic routing</em></strong> where they learn nearly
+        identical routing patterns across threats, thus preventing the construction of threat-specific model pathways.
+      </p>
+      <p>
+        To this end, we propose <strong>Robust Mixture of Low-Rank Experts (RoME)</strong>, where each expert is a
+        low-rank additive update to the shared backbone, allowing it to capture threat-common features while experts
+        focus on threat-specific information. To address threat-agnostic routing, RoME introduces (i)
+        <strong>dual-scale gating</strong> that exploits threat-discriminative signals from local and global level
+        features, and (ii) <strong>threat-guided gating diversification</strong> that enforces diverse expert
+        utilization across threats.
+      </p>
+      <p>
+        Extensive experiments demonstrate that RoME outperforms existing state-of-the-art MAT in union robustness
+        and natural accuracy and improves robustness against unseen threats.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="motivation" style="background: #fbfcfd;">
+  <div class="page-container content">
+    <h2 class="title section-title has-text-centered">Why Naïve MoE Fails</h2>
+    <p class="results-intro">
+      Adversarial examples crafted from the same image share the same underlying content, so a mixture of experts
+      applied off-the-shelf to MAT breaks down in two ways.
+    </p>
+
+    <h3 class="result-category-title">&#9312; Redundant experts</h3>
+    <p class="result-category-desc">
+      Conventional disjoint FFN experts have no shared backbone to absorb threat-common features, so they
+      redundantly capture the same representations. Our low-rank experts leave the common features to the backbone
+      and specialize on threat-specific information.
+    </p>
+    <div class="fig-grid">
+      <div class="fig-item" style="flex: 1 1 340px;">
+        <div class="fig-grid" style="gap: 0.4rem; margin-top: 0;">
+          <img src="./static/images/tsne_baseline_1.png" alt="t-SNE of conventional MoE expert 0 outputs" style="flex: 1 1 45%; width: 48%;">
+          <img src="./static/images/tsne_baseline_2.png" alt="t-SNE of conventional MoE expert 1 outputs" style="flex: 1 1 45%; width: 48%;">
+        </div>
+        <div class="sub-caption">Conventional MoE &mdash; experts overlap</div>
+      </div>
+      <div class="fig-item" style="flex: 1 1 340px;">
+        <div class="fig-grid" style="gap: 0.4rem; margin-top: 0;">
+          <img src="./static/images/tsne_ours_1.png" alt="t-SNE of RoME low-rank expert 0 outputs" style="flex: 1 1 45%; width: 48%;">
+          <img src="./static/images/tsne_ours_2.png" alt="t-SNE of RoME low-rank expert 1 outputs" style="flex: 1 1 45%; width: 48%;">
+        </div>
+        <div class="sub-caption">Ours (low-rank experts) &mdash; threat-specific</div>
+      </div>
+    </div>
+    <p class="figure-caption">
+      t-SNE of expert outputs on CIFAR-10. Conventional experts redundantly capture <strong>threat-common
+      features</strong>; RoME's low-rank experts capture <strong>threat-specific features</strong>.
+    </p>
+
+    <h3 class="result-category-title">&#9313; Threat-agnostic routing</h3>
+    <p class="result-category-desc">
+      Because the discriminative signal between threats is weak, the gating network converges to nearly identical
+      routing for every threat &mdash; and standard MoE remedies do not help.
+    </p>
+    <img class="fig-legend" src="./static/images/gate_legend.png" alt="Expert legend: Expert 0 to Expert 3">
+    <div class="fig-grid">
+      <div class="fig-item">
+        <img src="./static/images/gate_distributions_vanilla.png" alt="Gating weight distribution for naive MoE">
+        <div class="sub-caption">(a) Naïve approach</div>
+      </div>
+      <div class="fig-item">
+        <img src="./static/images/gate_distributions_loadbal.png" alt="Gating weight distribution with load balancing">
+        <div class="sub-caption">(b) Load balancing</div>
+      </div>
+      <div class="fig-item">
+        <img src="./static/images/gate_distributions_ours.png" alt="Gating weight distribution for RoME">
+        <div class="sub-caption">(c) Ours (RoME)</div>
+      </div>
+    </div>
+    <p class="figure-caption">
+      Gaussian KDE of expert activations across threats on CIFAR-10. (a) Naïve MoE suffers from <strong>routing
+      collapse</strong> (Expert 1 dominates) and threat-agnostic routing. (b) Load balancing resolves routing
+      collapse but routing remains threat-agnostic. (c) RoME learns diverse, <strong>threat-specific</strong>
+      expert combinations.
+    </p>
+  </div>
+</section>
+
+<section class="section" id="method">
+  <div class="page-container content">
+    <h2 class="title section-title has-text-centered">Method</h2>
+
+    <div class="pipeline-card">
+      <img src="./static/images/framework.png" alt="RoME framework overview">
+    </div>
+    <p class="figure-caption">
+      Overview of RoME. A shared backbone captures threat-common features while low-rank experts focus on
+      threat-specific information, and the gating is made threat-aware by dual-scale inputs and an explicit
+      diversification objective.
+    </p>
+
+    <ul class="component-list">
+      <li>
+        <strong>(i) Mixture of robust low-rank experts.</strong>
+        Each expert <em>k</em> is a LoRA-style additive update <strong>B</strong><sub>k</sub><strong>A</strong><sub>k</sub>
+        to the backbone weight <strong>W</strong>, so the output for token <em>i</em> is
+        <strong>o</strong><sub>i</sub> = <strong>W</strong><strong>h</strong><sub>i</sub> +
+        &Sigma;<sub>k</sub> g<sub>i,k</sub>&thinsp;<strong>B</strong><sub>k</sub><strong>A</strong><sub>k</sub><strong>h</strong><sub>i</sub>.
+        The backbone absorbs threat-common features; the experts stay free to specialize.
+      </li>
+      <li>
+        <strong>(ii) Threat-distinguishing dual-scale gating.</strong>
+        Threats are discriminative at different granularities &mdash; sparse &#8467;<sub>1</sub> perturbations show up
+        in patch-level features, uniform &#8467;<sub>&infin;</sub> perturbations in image-level features. RoME combines
+        a local gate over each token with a global gate over the token-averaged feature, mixed by a
+        layer-adaptive coefficient that emphasizes global gating in early layers and local gating in deeper ones.
+      </li>
+      <li>
+        <strong>(iii) Threat-guided gating diversification.</strong>
+        A regularizer maximizes the pairwise distance between the average gating patterns of different threats
+        (locally per token, and globally through a learned projection), explicitly forcing distinct expert
+        combinations per threat. Threat labels are used only during training &mdash; at inference the gating
+        predicts the expert combination on its own, so RoME generalizes to unseen threats.
+      </li>
+    </ul>
+
+    <h3 class="result-category-title" style="margin-top: 2rem;">Threats separate at different granularities</h3>
+    <div class="fig-grid">
+      <div class="fig-item">
+        <img src="./static/images/tsne_local_a.png" alt="t-SNE of patch-level features">
+        <div class="sub-caption">(a) Patch-level features</div>
+      </div>
+      <div class="fig-item">
+        <img src="./static/images/tsne_global.png" alt="t-SNE of image-level features">
+        <div class="sub-caption">(b) Image-level features</div>
+      </div>
+    </div>
+    <p class="figure-caption">
+      t-SNE of threat separability. (a) Local patch-level features better separate &#8467;<sub>1</sub>
+      (silhouette 0.394) but overlap for &#8467;<sub>&infin;</sub> and &#8467;<sub>2</sub>.
+      (b) Global image-level features show the complementary pattern, better distinguishing
+      &#8467;<sub>&infin;</sub> (silhouette 0.611). Dual-scale gating exploits both.
+    </p>
+  </div>
+</section>
+
+<section class="section" id="results" style="background: #fbfcfd;">
+  <div class="page-container content">
+    <h2 class="title section-title has-text-centered">Results</h2>
+    <p class="results-intro">
+      We evaluate on CIFAR-10, ImageNet-100 and ImageNet-1K with ViT-B, DeiT-B, Swin-B, WideResNet and XCiT
+      backbones under AutoAttack. RoME is modular and plugs into existing MAT methods.
+    </p>
+
+    <h3 class="result-category-title">Robustness against multiple &#8467;<sub>p</sub> perturbations</h3>
+    <p class="result-category-desc">
+      Natural accuracy, single-threat robustness, their average, and worst-case union robustness under AutoAttack.
+    </p>
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th colspan="2" rowspan="2" class="name">Methods</th>
+            <th colspan="6" style="border-left: 1px solid #e2e8f0;"><em>CIFAR-10</em></th>
+            <th colspan="6" style="border-left: 1px solid #e2e8f0;"><em>ImageNet-100</em></th>
+          </tr>
+          <tr>
+            <th style="border-left: 1px solid #e2e8f0;">Nat</th><th>&#8467;<sub>1</sub></th><th>&#8467;<sub>2</sub></th><th>&#8467;<sub>&infin;</sub></th><th>Avg</th><th>Union</th>
+            <th style="border-left: 1px solid #e2e8f0;">Nat</th><th>&#8467;<sub>1</sub></th><th>&#8467;<sub>2</sub></th><th>&#8467;<sub>&infin;</sub></th><th>Avg</th><th>Union</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="group" rowspan="7">PGD</td>
+            <td class="name">RANDOM</td>
+            <td>86.7</td><td>52.3</td><td>68.8</td><td>40.3</td><td>53.8</td><td>38.6</td>
+            <td>84.4</td><td>43.8</td><td>67.6</td><td>45.2</td><td>52.2</td><td>39.4</td>
+          </tr>
+          <tr>
+            <td class="name">AVG</td>
+            <td>86.3</td><td>52.2</td><td>67.5</td><td>38.9</td><td>52.9</td><td>37.9</td>
+            <td>83.6</td><td>44.3</td><td>66.4</td><td>44.8</td><td>51.8</td><td>39.3</td>
+          </tr>
+          <tr>
+            <td class="name">MAX</td>
+            <td>85.1</td><td>46.6</td><td>66.8</td><td>40.1</td><td>51.2</td><td>38.5</td>
+            <td>79.9</td><td>42.2</td><td>63.2</td><td>47.5</td><td>51.0</td><td>40.5</td>
+          </tr>
+          <tr>
+            <td class="name">MSD</td>
+            <td>84.7</td><td>43.9</td><td>67.3</td><td>40.5</td><td>50.6</td><td>38.3</td>
+            <td>80.2</td><td>42.6</td><td>64.3</td><td>45.8</td><td>50.9</td><td>40.2</td>
+          </tr>
+          <tr>
+            <td class="name">MORE</td>
+            <td>82.6</td><td>44.3</td><td>42.4</td><td>33.7</td><td>40.1</td><td>31.1</td>
+            <td>75.6</td><td>34.5</td><td>41.2</td><td>42.0</td><td>39.2</td><td>32.8</td>
+          </tr>
+          <tr class="ours">
+            <td class="name">RoME+RANDOM (Ours)</td>
+            <td class="best">88.1</td><td class="best">56.4</td><td class="best">69.7</td><td>42.1</td><td class="best">56.1</td><td>41.1</td>
+            <td class="best">85.2</td><td class="best">46.9</td><td class="best">68.3</td><td>47.8</td><td class="best">54.3</td><td>42.9</td>
+          </tr>
+          <tr class="ours">
+            <td class="name">RoME+MAX (Ours)</td>
+            <td>85.4</td><td>48.2</td><td>68.2</td><td class="best">43.1</td><td>53.2</td><td class="best">42.3</td>
+            <td>80.6</td><td>45.6</td><td>66.0</td><td class="best">50.9</td><td>54.2</td><td class="best">43.7</td>
+          </tr>
+          <tr class="group-start">
+            <td class="group" rowspan="6">APGD</td>
+            <td class="name">RANDOM</td>
+            <td>86.5</td><td>50.1</td><td>69.3</td><td>37.5</td><td>52.3</td><td>37.2</td>
+            <td>82.0</td><td>38.4</td><td>66.0</td><td>46.2</td><td>50.2</td><td>37.1</td>
+          </tr>
+          <tr>
+            <td class="name">MAX</td>
+            <td>81.7</td><td>45.5</td><td>65.3</td><td>42.6</td><td>51.1</td><td>41.4</td>
+            <td>79.5</td><td>41.2</td><td>63.6</td><td>44.8</td><td>49.9</td><td>39.8</td>
+          </tr>
+          <tr>
+            <td class="name">E-AT</td>
+            <td>83.2</td><td>50.3</td><td>68.9</td><td>40.6</td><td>53.3</td><td>39.7</td>
+            <td class="best">83.4</td><td>40.6</td><td>64.2</td><td>45.4</td><td>50.1</td><td>39.2</td>
+          </tr>
+          <tr>
+            <td class="name">RAMP</td>
+            <td>82.2</td><td>47.1</td><td>63.5</td><td>43.4</td><td>51.3</td><td>42.5</td>
+            <td>82.2</td><td>42.6</td><td>63.4</td><td>45.1</td><td>50.4</td><td>41.8</td>
+          </tr>
+          <tr class="ours">
+            <td class="name">RoME+RANDOM (Ours)</td>
+            <td class="best">87.4</td><td class="best">54.7</td><td class="best">71.6</td><td>40.0</td><td class="best">55.4</td><td>39.4</td>
+            <td class="best">83.4</td><td>42.1</td><td class="best">67.8</td><td class="best">48.6</td><td class="best">52.8</td><td>40.5</td>
+          </tr>
+          <tr class="ours">
+            <td class="name">RoME+MAX (Ours)</td>
+            <td>82.5</td><td>48.9</td><td>67.3</td><td class="best">44.2</td><td>53.5</td><td class="best">43.7</td>
+            <td>80.2</td><td class="best">44.2</td><td>64.3</td><td>47.9</td><td>52.1</td><td class="best">42.8</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="table-caption">
+      <strong>Comparison with state-of-the-art MAT methods</strong> on CIFAR-10 and ImageNet-100 under AutoAttack.
+      RoME achieves the best average and union robustness in every setting, and also the highest natural accuracy
+      &mdash; because natural images get their own model pathway rather than being forced into a single
+      representation space. Best results in <span class="best">bold</span>.
+    </p>
+
+    <h3 class="result-category-title">Robustness against unseen threats</h3>
+    <p class="result-category-desc">
+      Common corruptions, &#8467;<sub>0</sub>, perceptual, patch, spatial and semantic attacks &mdash; none seen
+      during training &mdash; plus GMA, a white-box adaptive attack that explicitly tries to misroute the gating.
+    </p>
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th colspan="2" class="name">Methods</th>
+            <th style="border-left: 1px solid #e2e8f0;">Com. Corr.</th><th>&#8467;<sub>0</sub></th><th>Percep. &#8467;<sub>p</sub></th>
+            <th>PPGD</th><th>LPA</th><th>Adv. Patch</th><th>StAdv</th><th>ReColorAdv</th><th>GMA</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="group" rowspan="7">PGD</td>
+            <td class="name">RANDOM</td>
+            <td>79.0</td><td>31.9</td><td>53.2</td><td>43.7</td><td>32.2</td><td>47.9</td><td>31.1</td><td>70.4</td><td>44.0</td>
+          </tr>
+          <tr><td class="name">AVG</td><td>78.4</td><td>26.7</td><td>54.5</td><td>42.9</td><td>31.0</td><td>48.6</td><td>29.2</td><td>68.8</td><td>43.7</td></tr>
+          <tr><td class="name">MAX</td><td>76.8</td><td>28.3</td><td>51.3</td><td>43.2</td><td>33.1</td><td>43.9</td><td>34.4</td><td>70.0</td><td>45.4</td></tr>
+          <tr><td class="name">MSD</td><td>76.5</td><td>28.0</td><td>50.4</td><td>42.4</td><td>33.3</td><td>40.8</td><td>34.9</td><td>70.8</td><td>45.6</td></tr>
+          <tr><td class="name">MORE</td><td>74.9</td><td>23.8</td><td>50.7</td><td>42.7</td><td>31.5</td><td>45.2</td><td>32.1</td><td>70.0</td><td>43.6</td></tr>
+          <tr class="ours">
+            <td class="name">RoME+RANDOM (Ours)</td>
+            <td class="best">80.2</td><td>38.3</td><td class="best">57.8</td><td>51.2</td><td>35.4</td><td class="best">48.8</td><td>36.8</td><td>73.5</td><td>45.6</td>
+          </tr>
+          <tr class="ours">
+            <td class="name">RoME+MAX (Ours)</td>
+            <td>76.8</td><td class="best">39.4</td><td>56.2</td><td class="best">52.2</td><td class="best">40.7</td><td>47.4</td><td class="best">44.0</td><td class="best">75.4</td><td class="best">47.5</td>
+          </tr>
+          <tr class="group-start">
+            <td class="group" rowspan="6">APGD</td>
+            <td class="name">RANDOM</td>
+            <td>78.5</td><td>31.6</td><td>54.5</td><td>49.5</td><td>45.5</td><td>49.1</td><td>47.0</td><td>77.8</td><td>40.0</td>
+          </tr>
+          <tr><td class="name">MAX</td><td>74.2</td><td>33.4</td><td>51.6</td><td>50.5</td><td>49.2</td><td>47.2</td><td>54.6</td><td>76.6</td><td>44.9</td></tr>
+          <tr><td class="name">E-AT</td><td>74.3</td><td>34.1</td><td>49.7</td><td>49.7</td><td>47.9</td><td>48.0</td><td>48.5</td><td>75.5</td><td>42.8</td></tr>
+          <tr><td class="name">RAMP</td><td>74.9</td><td>33.1</td><td>51.6</td><td>51.0</td><td>50.0</td><td>49.4</td><td>49.9</td><td>76.5</td><td>45.1</td></tr>
+          <tr class="ours">
+            <td class="name">RoME+RANDOM (Ours)</td>
+            <td class="best">79.6</td><td class="best">38.8</td><td class="best">58.9</td><td>50.9</td><td>47.0</td><td class="best">50.4</td><td>49.2</td><td class="best">78.2</td><td>43.3</td>
+          </tr>
+          <tr class="ours">
+            <td class="name">RoME+MAX (Ours)</td>
+            <td>74.5</td><td>37.8</td><td>53.0</td><td class="best">51.5</td><td class="best">51.6</td><td>49.2</td><td class="best">56.0</td><td>78.0</td><td class="best">45.6</td>
+          </tr>
+          <tr class="group-start">
+            <td class="group" rowspan="4">Non-&#8467;<sub>p</sub></td>
+            <td class="name">PAT</td>
+            <td>77.6</td><td>16.0</td><td>47.1</td><td>55.5</td><td>51.5</td><td>41.2</td><td>59.7</td><td>76.4</td><td>49.0</td>
+          </tr>
+          <tr><td class="name">PAT+VR</td><td>77.7</td><td>9.9</td><td>47.9</td><td>56.6</td><td>51.9</td><td>39.3</td><td>58.4</td><td>77.0</td><td>50.1</td></tr>
+          <tr class="ours">
+            <td class="name">RoME+PAT (Ours)</td>
+            <td>78.1</td><td class="best">19.8</td><td>48.6</td><td>57.0</td><td>54.9</td><td>45.2</td><td>63.3</td><td>77.5</td><td>49.8</td>
+          </tr>
+          <tr class="ours">
+            <td class="name">RoME+PAT+VR (Ours)</td>
+            <td class="best">78.3</td><td>17.9</td><td class="best">49.1</td><td class="best">59.3</td><td class="best">57.8</td><td class="best">45.7</td><td class="best">65.2</td><td class="best">80.1</td><td class="best">52.6</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="table-caption">
+      <strong>Unseen threats on CIFAR-10.</strong> The diverse representations learned across multiple pathways
+      generalize beyond the &#8467;<sub>p</sub> threats seen during training. RoME also holds up under GMA, the
+      adaptive attack targeting the gating itself, and improves non-&#8467;<sub>p</sub> perceptual adversarial
+      training (PAT, VR) by up to +6.8&thinsp;%p on StAdv.
+    </p>
+
+    <h3 class="result-category-title">Learned expert routing</h3>
+    <p class="result-category-desc">
+      Applying different &#8467;<sub>p</sub> threats to different regions of an image and visualizing the resulting
+      per-patch expert activations.
+    </p>
+    <div class="pipeline-card">
+      <img src="./static/images/expert_activation_a.png" alt="Expert activation maps, example 1">
+    </div>
+    <div class="pipeline-card">
+      <img src="./static/images/expert_activation_b.png" alt="Expert activation maps, example 2">
+    </div>
+    <p class="figure-caption">
+      Standard MoE (rows 1, 3) routes every threat to the same experts. RoME (rows 2, 4) activates different experts
+      per threat &mdash; Expert 1 fires strongly for &#8467;<sub>&infin;</sub> and barely at all for
+      &#8467;<sub>1</sub>, confirming that each expert specializes in a distinct threat type.
+    </p>
+
+    <h3 class="result-category-title">Computational cost</h3>
+    <p class="result-category-desc">
+      Measured on ViT-B / CIFAR-10 against the RANDOM baseline.
+    </p>
+    <div class="fig-grid" style="align-items: stretch;">
+      <div class="fig-item" style="flex: 1 1 380px; padding: 0;">
+        <div class="table-scroll" style="border: none; box-shadow: none; border-radius: 10px;">
+          <table class="data-table" style="min-width: 380px;">
+            <thead>
+              <tr>
+                <th class="name" rowspan="2">Methods</th>
+                <th># Params</th><th>FLOPs</th><th>Train time</th><th>Latency</th>
+              </tr>
+              <tr>
+                <th>(M)</th><th>(G)</th><th>(sec/iter)</th><th>(ms/img)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="name">RANDOM</td><td>85.15</td><td>5.61</td><td>3.05</td><td>0.53</td></tr>
+              <tr class="group-start"><td class="name">MORE</td><td>340.60</td><td>22.43</td><td>25.16</td><td>1.70</td></tr>
+              <tr><td class="name">MoE (FFN)</td><td>255.20</td><td>9.29</td><td>8.38</td><td>1.36</td></tr>
+              <tr class="ours">
+                <td class="name">RoME (Ours)</td>
+                <td class="best">88.85</td><td class="best">5.84</td><td class="best">3.56</td><td class="best">0.60</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="fig-item" style="flex: 1 1 300px; display: flex; flex-direction: column; justify-content: center;">
+        <img src="./static/images/training_convergence.png" alt="Training time versus union robustness">
+        <div class="sub-caption">Training time vs. union robustness</div>
+      </div>
+    </div>
+    <p class="figure-caption">
+      MoE with FFN experts and MORE cost 3&times; and 4&times; more parameters. RoME reaches state-of-the-art union
+      robustness with only <strong>1.04&times; parameters</strong> and 1.17&times; train time, and outperforms the
+      baseline at every wall-clock budget &mdash; reaching RANDOM's peak robustness in 13.2k sec versus 23.9k sec.
+    </p>
+  </div>
+</section>
+
+<section class="section" id="poster">
+  <div class="page-container content">
+    <h2 class="title section-title has-text-centered">Poster &amp; Slides</h2>
+    <p class="results-intro">
+      Materials from our ECCV 2026 presentation in Malmö.
+    </p>
+
+    <div class="doc-cards">
+      <div class="doc-card">
+        <div class="doc-card-media">
+          <img src="./static/images/poster_preview.png" alt="RoME poster preview">
+        </div>
+        <div class="doc-card-body">
+          <h3>Poster</h3>
+          <p>Full 1400 &times; 1000 mm conference poster.</p>
+          <a href="./static/pdfs/RoME_poster.pdf" class="button is-small is-rounded is-dark" target="_blank">
+            <span class="icon"><i class="fas fa-file-pdf"></i></span>
+            <span>Download PDF</span>
+          </a>
+        </div>
+      </div>
+      <div class="doc-card">
+        <div class="doc-card-media">
+          <img src="./static/images/slides_preview.png" alt="RoME presentation slides preview">
+        </div>
+        <div class="doc-card-body">
+          <h3>Slides</h3>
+          <p>12-slide presentation deck.</p>
+          <a href="./static/pdfs/RoME_slides.pdf" class="button is-small is-rounded is-dark" target="_blank">
+            <span class="icon"><i class="fas fa-file-pdf"></i></span>
+            <span>Download PDF</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="bibtex" style="background: #fbfcfd;">
+  <div class="page-container content">
+    <h2 class="title section-title has-text-centered">BibTeX</h2>
+
+    <pre class="bibtex-box"><code>@inproceedings{kim2026rome,
+  title     = {RoME: Robust Mixture of Low-Rank Experts against Multiple Adversarial Perturbations},
+  author    = {Kim, Woo Jae and Min, Kyle and Ha, Suhyeon and Jeon, Joonsung and Yoon, Sung-Eui},
+  booktitle = {European Conference on Computer Vision (ECCV)},
+  year      = {2026}
+}</code></pre>
+  </div>
+</section>
+
+<section class="section" style="padding-top: 1.4rem; padding-bottom: 1.4rem;">
+  <div class="page-container">
+    <p class="acknowledgement">
+      <strong>Acknowledgements.</strong> This work was supported by Institute of Information &amp; communications
+      Technology Planning &amp; Evaluation (IITP) grant funded by the Korea government (MSIT)
+      (RS-2023-00237965, Recognition, Action and Interaction Algorithms for Open-world Robot Service) and the
+      IITP-ITRC (Information Technology Research Center) grant funded by the Korea government (Ministry of Science
+      and ICT) (IITP-2026-RS-2020-II201460).
+    </p>
+  </div>
+</section>
+
+<footer class="has-text-centered">
+  <p>
+    Website template adapted from Nerfies.
+  </p>
+</footer>
+
+<div id="image-modal" class="image-modal">
+  <div class="image-modal-content">
+    <button id="image-modal-close" class="image-modal-close" aria-label="Close image">&times;</button>
+    <img id="image-modal-img" src="" alt="">
+  </div>
+</div>
+
+<script>
+  (function () {
+    const modal = document.getElementById('image-modal');
+    const modalImg = document.getElementById('image-modal-img');
+    const modalClose = document.getElementById('image-modal-close');
+
+    const zoomable = document.querySelectorAll(
+      '.teaser img, .pipeline-card img, .fig-item img, .doc-card-media img'
+    );
+
+    zoomable.forEach(img => {
+      img.style.cursor = 'zoom-in';
+      img.addEventListener('click', () => {
+        modalImg.src = img.src;
+        modalImg.alt = img.alt || '';
+        modal.classList.add('active');
+      });
+    });
+
+    function close() {
+      modal.classList.remove('active');
+      modalImg.src = '';
+    }
+
+    modalClose.addEventListener('click', close);
+
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal) close();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && modal.classList.contains('active')) close();
+    });
+  })();
+</script>
+
+</body>
+</html>
