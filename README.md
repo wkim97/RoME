@@ -15,6 +15,20 @@ Official implementation of our **ECCV 2026** paper:
 
 ---
 
+## Overview
+
+Multi-perturbation adversarial training (MAT) seeks robustness against multiple adversarial threats
+at once, but suffers from **robustness trade-offs** across threats. RoME routes each threat
+through a distinct model pathway via a **Mixture of Experts**, using three components:
+
+- **Robust low-rank experts** — experts are low-rank additive updates over a shared backbone, so
+  the backbone captures threat-common features while experts learn threat-specific ones.
+- **Threat-distinguishing dual-scale gating** — gating fuses local patch-level and global
+  image-level features to better tell threats apart.
+- **Threat-guided gating diversification** — a regularizer that pushes different threats to
+  distinct expert combinations, avoiding threat-agnostic routing.
+
+
 ## Setup
 
 ```bash
@@ -116,5 +130,5 @@ scripts/                     entry points
 
 ## Acknowledgements
 
-Built on [LoRA](https://github.com/microsoft/LoRA), [timm](https://github.com/huggingface/pytorch-image-models)
-and [AutoAttack](https://github.com/fra31/auto-attack).
+Low-rank experts build on [LoRA](https://github.com/microsoft/LoRA). We thank the authors of the
+MAT baselines and evaluation suites whose code and protocols we build upon.
