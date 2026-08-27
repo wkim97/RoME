@@ -36,7 +36,8 @@ Override the root with `DATA_DIR=/path/to/datasets` or `--data-dir`.
 
 ## Checkpoints
 
-Download into `checkpoints/`:
+Download from [Google Drive](https://drive.google.com/drive/folders/1OnuDO-y3Bf3_F_SQKEHVW7zU9icniPEN?usp=sharing)
+and unpack into `checkpoints/`:
 
 ```
 checkpoints/
@@ -44,6 +45,8 @@ checkpoints/
 ├── ViT_ImageNet100/{MAX,RANDOM}_apgd_imagenet100.pth
 └── ViT_ImageNet1K/{MAX,RANDOM}_apgd_imagenet1k.pth
 ```
+
+Override the root with `CKPT_DIR=/path/to/checkpoints` or `--ckpt`.
 
 ## Training
 
