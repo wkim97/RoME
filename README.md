@@ -99,9 +99,6 @@ python evaluate.py --dataset cifar10 \
 python evaluate.py --help
 ```
 
-Expert count, LoRA rank and gate type are read from the checkpoint. `--s` / `--b` set
-β(l) = σ(s(1 − l/L) − b) and must match the values used for training.
-
 ## Layout
 
 ```
